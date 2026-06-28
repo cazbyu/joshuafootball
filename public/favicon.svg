@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Football">
+  <rect width="512" height="512" rx="112" fill="#1a1a2e"/>
+  <g transform="rotate(-32 256 256)">
+    <ellipse cx="256" cy="256" rx="170" ry="104" fill="#f59e0b" stroke="#b45309" stroke-width="10"/>
+    <path d="M256 178 V334" stroke="#1a1a2e" stroke-width="14" stroke-linecap="round"/>
+    <g stroke="#fff" stroke-width="12" stroke-linecap="round">
+      <path d="M232 206 H280"/>
+      <path d="M232 240 H280"/>
+      <path d="M232 274 H280"/>
+      <path d="M232 308 H280"/>
+    </g>
+    <path d="M150 256 H120" stroke="#b45309" stroke-width="12" stroke-linecap="round"/>
+    <path d="M362 256 H392" stroke="#b45309" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</svg>
