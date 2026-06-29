@@ -13,7 +13,7 @@ const SECTIONS = [
   { key: 'coach_notes', icon: '📝', title: "Coach's notes" },
 ]
 
-export default function PlayDetailScreen({ play, onBack }) {
+export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
   if (!play) return null
 
   return (
@@ -96,6 +96,16 @@ export default function PlayDetailScreen({ play, onBack }) {
             ))}
           </div>
         </section>
+      )}
+
+      {/* Jump straight into the bot with this play pre-loaded as context. */}
+      {onAskCoach && (
+        <button
+          onClick={() => onAskCoach(play)}
+          className="mt-8 w-full rounded-xl bg-gold py-4 text-base font-bold text-navy shadow-lg transition active:scale-[0.99]"
+        >
+          💬 Ask the Coach about this play
+        </button>
       )}
     </div>
   )

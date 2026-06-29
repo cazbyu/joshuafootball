@@ -28,9 +28,13 @@ Deno.serve(async (req) => {
   }
 
   let question: string
+  let focusPlayName: string | null
   try {
     const body = await req.json()
     question = String(body?.question ?? '').trim()
+    // Optional: when the player opened the bot from a specific play, the
+    // play's name comes in so we can answer in that exact play's context.
+    focusPlayName = body?.playContext ? String(body.playContext).trim() : null
   } catch {
     return json({ error: 'Invalid JSON body' }, 400)
   }
@@ -61,6 +65,25 @@ Deno.serve(async (req) => {
   const playbook = plays ?? []
   const playbookContext = JSON.stringify(playbook)
 
+  // If the player is asking about a specific play, pull its FULL detail
+  // (including pre_snap, mistakes, coach_notes) so the coach can go deep.
+  let focusBlock = ''
+  if (focusPlayName) {
+    const { data: focus } = await supabase
+      .from('plays')
+      .select(
+        'name, formation, concept, description, wr_route, lb_key, key_read, situations, pre_snap, mistakes, coach_notes, tags',
+      )
+      .ilike('name', focusPlayName)
+      .maybeSingle()
+    if (focus) {
+      focusBlock =
+        `\n\nThe player is specifically asking about the play "${focus.name}". ` +
+        `Answer in the context of THIS play unless he clearly changes the ` +
+        `subject. Here is its full detail (JSON): ${JSON.stringify(focus)}`
+    }
+  }
+
   const systemPrompt =
     `You are an encouraging, knowledgeable high school football coach helping ` +
     `a 15-year-old sophomore named Joshua learn the game. He plays wide ` +
@@ -72,7 +95,8 @@ Deno.serve(async (req) => {
     `Write in plain, conversational text — no Markdown formatting. Do not use ` +
     `headers (#), bold/asterisks (**), or tables. Use short paragraphs, and if ` +
     `you list things, use simple dashes. Emojis are fine, used sparingly.\n\n` +
-    `Here is Joshua's playbook for reference (JSON): ${playbookContext}`
+    `Here is Joshua's playbook for reference (JSON): ${playbookContext}` +
+    focusBlock
 
   let answer: string
   try {
@@ -112,11 +136,16 @@ Deno.serve(async (req) => {
     answer = "I didn't quite catch that — can you ask it a different way?"
   }
 
-  // Which plays (if any) did the coach reference by name?
+  // Prefer the explicit focus play; otherwise detect which plays (if any)
+  // the coach referenced by name in the answer.
   const referenced = playbook
     .map((p: { name: string }) => p.name)
     .filter((name: string) => name && answer.toLowerCase().includes(name.toLowerCase()))
-  const playContext = referenced.length ? referenced.join(', ') : null
+  const playContext = focusPlayName
+    ? focusPlayName
+    : referenced.length
+      ? referenced.join(', ')
+      : null
 
   // Log the conversation. Don't fail the request if logging fails.
   const { error: insertError } = await supabase

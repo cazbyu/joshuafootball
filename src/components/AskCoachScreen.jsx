@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { askCoach } from '../lib/askCoach'
 
-const STARTERS = [
+const GENERAL_STARTERS = [
   'When should I use a shallow cross?',
   "What's the difference between man and zone coverage?",
   'As a linebacker, what should I read first?',
   'Explain what a double move is',
 ]
 
-export default function AskCoachScreen({ onBack }) {
+// Shown when the bot was opened from a specific play.
+const PLAY_STARTERS = [
+  "What's my job as the WR on this play?",
+  'What coverage beats this play?',
+  'What are the common mistakes here?',
+  'When should I check out of this play?',
+]
+
+export default function AskCoachScreen({ playContext = null, onBack }) {
   // messages: { role: 'user' | 'coach' | 'error', text: string }
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -29,7 +37,7 @@ export default function AskCoachScreen({ onBack }) {
     setLoading(true)
 
     try {
-      const answer = await askCoach(q)
+      const answer = await askCoach(q, playContext)
       setMessages((m) => [...m, { role: 'coach', text: answer }])
     } catch (err) {
       setMessages((m) => [
@@ -47,15 +55,16 @@ export default function AskCoachScreen({ onBack }) {
   }
 
   const empty = messages.length === 0
+  const starters = playContext ? PLAY_STARTERS : GENERAL_STARTERS
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col px-4 pb-4 pt-6">
-      <header className="mb-4">
+      <header className="mb-3">
         <button
           onClick={onBack}
           className="mb-3 text-sm text-slate-400 hover:text-slate-200"
         >
-          ← Home
+          ← {playContext ? 'Back to play' : 'Home'}
         </button>
         <h1 className="text-2xl font-extrabold tracking-tight">
           Ask the Coach <span aria-hidden>💬</span>
@@ -65,15 +74,25 @@ export default function AskCoachScreen({ onBack }) {
         </p>
       </header>
 
+      {/* Play-context banner */}
+      {playContext && (
+        <div className="mb-3 flex items-center gap-2 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
+          <span aria-hidden>🏈</span>
+          <span className="text-slate-200">
+            Asking about: <span className="font-bold text-gold">{playContext}</span>
+          </span>
+        </div>
+      )}
+
       {/* Conversation */}
       <div className="flex-1 space-y-3 overflow-y-auto">
         {empty && (
           <div className="rounded-xl border border-slate-800 bg-surface/50 p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Try asking
+              {playContext ? `Ask about ${playContext}` : 'Try asking'}
             </p>
             <div className="flex flex-col gap-2">
-              {STARTERS.map((s) => (
+              {starters.map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
@@ -109,7 +128,7 @@ export default function AskCoachScreen({ onBack }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask the coach…"
+          placeholder={playContext ? `Ask about ${playContext}…` : 'Ask the coach…'}
           disabled={loading}
           className="flex-1 rounded-xl border border-slate-700 bg-surface p-3 text-sm placeholder:text-slate-500 focus:border-gold focus:outline-none disabled:opacity-60"
         />

@@ -20,6 +20,7 @@ export default function App() {
   const [result, setResult] = useState(null)
   const [saveState, setSaveState] = useState('idle') // idle | saving | saved | error
   const [selectedPlay, setSelectedPlay] = useState(null)
+  const [askContext, setAskContext] = useState(null) // play name, when bot opened from a play
 
   function startQuiz({ mode, formation, count }) {
     const pool =
@@ -61,11 +62,19 @@ export default function App() {
     setQuestions([])
     setResult(null)
     setSelectedPlay(null)
+    setAskContext(null)
   }
 
   function openPlay(play) {
     setSelectedPlay(play)
     setScreen('playDetail')
+  }
+
+  // Open the bot focused on a specific play; keep selectedPlay so "← Back to
+  // play" returns to its detail page.
+  function askAboutPlay(play) {
+    setAskContext(play.name)
+    setScreen('ask')
   }
 
   if (screen === 'quizSetup') {
@@ -117,12 +126,26 @@ export default function App() {
       <PlayDetailScreen
         play={selectedPlay}
         onBack={() => setScreen('teaching')}
+        onAskCoach={askAboutPlay}
       />
     )
   }
 
   if (screen === 'ask') {
-    return <AskCoachScreen onBack={goHome} />
+    return (
+      <AskCoachScreen
+        playContext={askContext}
+        onBack={() => {
+          // Returning from a play-focused chat goes back to that play.
+          if (askContext && selectedPlay) {
+            setAskContext(null)
+            setScreen('playDetail')
+          } else {
+            goHome()
+          }
+        }}
+      />
+    )
   }
 
   return (
@@ -130,9 +153,10 @@ export default function App() {
       plays={plays}
       loading={loading}
       error={error}
-      onPick={(mode) =>
+      onPick={(mode) => {
+        setAskContext(null)
         setScreen(mode === 'quiz' ? 'quizSetup' : mode)
-      }
+      }}
     />
   )
 }

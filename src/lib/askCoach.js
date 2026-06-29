@@ -7,7 +7,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 const FUNCTION_URL = `${supabaseUrl}/functions/v1/ask-coach`
 
-export async function askCoach(question) {
+export async function askCoach(question, playContext = null) {
   const resp = await fetch(FUNCTION_URL, {
     method: 'POST',
     headers: {
@@ -15,7 +15,7 @@ export async function askCoach(question) {
       apikey: anonKey,
       Authorization: `Bearer ${anonKey}`,
     },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify(playContext ? { question, playContext } : { question }),
   })
 
   let data = null
