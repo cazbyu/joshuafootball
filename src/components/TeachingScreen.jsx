@@ -122,6 +122,15 @@ export default function TeachingScreen({ plays, loading, onOpen, onBack }) {
                   <span className="flex-1">
                     <span className="block font-semibold text-slate-100">
                       {p.name}
+                      {p.verified && (
+                        <span
+                          className="ml-1.5 text-emerald-400"
+                          title="Verified against the diagram"
+                          aria-label="Verified"
+                        >
+                          ✓
+                        </span>
+                      )}
                     </span>
                     {p.concept && (
                       <span className="block text-xs text-slate-400">

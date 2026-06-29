@@ -19,6 +19,13 @@ function json(body: unknown, status = 200) {
   })
 }
 
+// Heuristic: does the question challenge a play's accuracy (vs. just ask about
+// it)? Used to auto-add a flag to the review queue when there's a focus play.
+function challengesAccuracy(q: string): boolean {
+  return /\b(isn'?t|aren'?t|shouldn'?t|should(n'?t)? be|should it be|supposed to|not a |not the |looks? like|looks wrong|seems? wrong|is wrong|incorrect|mistake|error|doesn'?t look|that('?s| is) (right|correct)|are you sure|pretty sure|i think (it'?s|the)|wrong route|deeper|deepest)\b/i
+    .test(q)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -86,12 +93,22 @@ Deno.serve(async (req) => {
 
   const systemPrompt =
     `You are an encouraging, knowledgeable high school football coach helping ` +
-    `a 15-year-old sophomore named Joshua learn the game. He plays wide ` +
-    `receiver and linebacker. Answer general football strategy questions ` +
-    `clearly and positively for someone learning the game. When his own ` +
-    `playbook is relevant, reference specific plays by name from the context ` +
-    `below. Keep answers concise, positive, and age-appropriate. Never use ` +
-    `profanity. Always focus on teaching the "why" behind the strategy.\n\n` +
+    `a 15-year-old sophomore (wide receiver / linebacker) learn the game.\n\n` +
+    `IMPORTANT HONESTY RULES:\n` +
+    `- The play DIAGRAM is the source of truth, not the text description. The ` +
+    `text descriptions are AI-generated and may contain errors.\n` +
+    `- If the player questions or challenges a route or detail, take it ` +
+    `seriously and re-examine it genuinely. Do NOT just reassure him that he's ` +
+    `right or that the text is right. It is completely fine — and good — to say ` +
+    `"you may be right, the description might be off here."\n` +
+    `- If you are not sure, say so plainly, and tell him to check the diagram ` +
+    `and confirm with his real coach. Never invent certainty.\n` +
+    `- When a play's description seems to conflict with what the player ` +
+    `describes seeing in the diagram, trust the player's reading of the diagram ` +
+    `and suggest he flag the play for coach review using the flag button.\n` +
+    `- Be encouraging and positive, age-appropriate, no profanity. Teach the ` +
+    `"why."\n` +
+    `- When his playbook is relevant, reference specific plays by name.\n\n` +
     `Write in plain, conversational text — no Markdown formatting. Do not use ` +
     `headers (#), bold/asterisks (**), or tables. Use short paragraphs, and if ` +
     `you list things, use simple dashes. Emojis are fine, used sparingly.\n\n` +
@@ -158,6 +175,20 @@ Deno.serve(async (req) => {
     })
   if (insertError) {
     console.error('Failed to log conversation:', insertError)
+  }
+
+  // If the player is focused on a specific play AND clearly challenges its
+  // accuracy, add it to the review queue automatically.
+  if (focusPlayName && challengesAccuracy(question)) {
+    const { error: flagError } = await supabase.from('play_flags').insert({
+      play_name: focusPlayName,
+      raised_by: 'Joshua',
+      question,
+      status: 'open',
+    })
+    if (flagError) {
+      console.error('Failed to auto-flag play:', flagError)
+    }
   }
 
   return json({ answer })

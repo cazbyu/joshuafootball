@@ -1,5 +1,6 @@
 import { familyClasses } from '../lib/formations'
 import Collapsible from './Collapsible'
+import FlagPlay from './FlagPlay'
 
 // One play, shown as a digital playbook page. The diagram and description stay
 // open; the rest collapse so the player can focus on one thing at a time.
@@ -51,6 +52,16 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
           {play.concept && (
             <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
               {play.concept}
+            </span>
+          )}
+          {/* Verified against the diagram by a coach, vs. AI-generated text. */}
+          {play.verified ? (
+            <span className="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-300">
+              ✓ Verified
+            </span>
+          ) : (
+            <span className="rounded-full border border-slate-600 bg-slate-500/10 px-2.5 py-1 text-xs font-medium text-slate-400">
+              Unverified
             </span>
           )}
         </div>
@@ -125,6 +136,9 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
           💬 Ask the Coach about this play
         </button>
       )}
+
+      {/* Low-key feedback: flag the play for coach review. */}
+      <FlagPlay playName={play.name} />
     </div>
   )
 }
