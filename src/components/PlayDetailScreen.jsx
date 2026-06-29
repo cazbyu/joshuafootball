@@ -128,13 +128,13 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
         </section>
       )}
 
-      {/* Jump straight into the AI Coach with this play pre-loaded as context. */}
+      {/* Jump straight into the Development Director with this play as context. */}
       {onAskCoach && (
         <button
           onClick={() => onAskCoach(play)}
           className="mt-8 w-full rounded-xl bg-gold py-4 text-base font-bold text-navy shadow-lg transition active:scale-[0.99]"
         >
-          🤖 Ask the AI Coach about this play
+          🤖 Ask the Development Director about this play
         </button>
       )}
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Save a real question for Joshua's human coach. Reused on play pages, after
-// wrong quiz answers, and inside the AI Coach chat. Lightweight: one box, submit.
+// wrong quiz answers, and inside the Development Director chat. One box, submit.
 // `source` is 'teaching' | 'quiz' | 'ai_coach'. `playName` is stored when known.
 // `initialText` pre-fills the box with helpful context (e.g. the last question).
 export default function SaveCoachNote({

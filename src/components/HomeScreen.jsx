@@ -15,7 +15,7 @@ const MODES = [
   {
     id: 'ask',
     emoji: '🤖',
-    label: 'AI Coach',
+    label: 'Development Director',
     blurb: 'Ask the AI anything — confirm with your real coach',
   },
 ]

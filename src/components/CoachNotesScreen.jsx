@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 const SOURCE_LABEL = {
   teaching: '📖 Teaching',
   quiz: '🏈 Quiz',
-  ai_coach: '🤖 AI Coach',
+  ai_coach: '🤖 Development Director',
 }
 
 function formatDate(iso) {
