@@ -1,9 +1,9 @@
 import { familyClasses } from '../lib/formations'
+import Collapsible from './Collapsible'
 
-// One play, shown as a digital playbook page. The diagram is the centerpiece;
-// each coaching field gets its own clearly-headed section (skipped if empty).
-const SECTIONS = [
-  { key: 'description', icon: '🏈', title: 'What it does' },
+// One play, shown as a digital playbook page. The diagram and description stay
+// open; the rest collapse so the player can focus on one thing at a time.
+const COLLAPSIBLE_SECTIONS = [
   { key: 'wr_route', icon: '🏃', title: 'WR routes' },
   { key: 'lb_key', icon: '🛡️', title: 'Linebacker key' },
   { key: 'key_read', icon: '👀', title: 'Key read' },
@@ -12,6 +12,15 @@ const SECTIONS = [
   { key: 'mistakes', icon: '⚠️', title: 'Common mistakes' },
   { key: 'coach_notes', icon: '📝', title: "Coach's notes" },
 ]
+
+function SectionHeader({ icon, title }) {
+  return (
+    <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gold">
+      <span aria-hidden>{icon}</span>
+      {title}
+    </span>
+  )
+}
 
 export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
   if (!play) return null
@@ -47,7 +56,7 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
         </div>
       </header>
 
-      {/* Diagram — the centerpiece */}
+      {/* Diagram — the centerpiece, always visible */}
       {play.image_url && (
         <img
           src={play.image_url}
@@ -57,29 +66,38 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
         />
       )}
 
-      {/* Coaching sections */}
-      <div className="flex flex-col gap-4">
-        {SECTIONS.map(({ key, icon, title }) => {
+      {/* Description — always visible */}
+      {play.description && String(play.description).trim() && (
+        <section className="mb-4 rounded-xl border border-slate-700 bg-surface p-4">
+          <h2 className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gold">
+            <span aria-hidden>🏈</span>
+            What it does
+          </h2>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-slate-200">
+            {play.description}
+          </p>
+        </section>
+      )}
+
+      {/* Collapsible coaching sections */}
+      <div className="flex flex-col gap-3">
+        {COLLAPSIBLE_SECTIONS.map(({ key, icon, title }) => {
           const value = play[key]
           if (!value || !String(value).trim()) return null
           return (
-            <section
+            <Collapsible
               key={key}
-              className="rounded-xl border border-slate-700 bg-surface p-4"
+              header={<SectionHeader icon={icon} title={title} />}
             >
-              <h2 className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gold">
-                <span aria-hidden>{icon}</span>
-                {title}
-              </h2>
               <p className="whitespace-pre-line text-sm leading-relaxed text-slate-200">
                 {value}
               </p>
-            </section>
+            </Collapsible>
           )
         })}
       </div>
 
-      {/* Tags */}
+      {/* Tags — always visible */}
       {play.tags?.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { FORMATIONS, formationFamily, familyClasses } from '../lib/formations'
+import Formations101 from './Formations101'
 
 // Browse the whole playbook. Search by name/concept/tags, filter by formation,
 // grouped and color-coded by family (GOLD = blue, RED = orange, TITE = green).
@@ -56,6 +57,9 @@ export default function TeachingScreen({ plays, loading, onOpen, onBack }) {
           Tap a play to open its full coaching page.
         </p>
       </header>
+
+      {/* Formations 101 primer (collapsible, above the play list) */}
+      <Formations101 />
 
       {/* Search + formation filter */}
       <div className="mb-4 flex flex-col gap-2">
