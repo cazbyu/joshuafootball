@@ -9,11 +9,12 @@ import ResultsScreen from './components/ResultsScreen'
 import TeachingScreen from './components/TeachingScreen'
 import PlayDetailScreen from './components/PlayDetailScreen'
 import AskCoachScreen from './components/AskCoachScreen'
+import CoachNotesScreen from './components/CoachNotesScreen'
 
 export default function App() {
   const { plays, loading, error } = usePlays()
 
-  // 'home' | 'quizSetup' | 'quiz' | 'results' | 'teaching' | 'playDetail' | 'ask'
+  // 'home' | 'quizSetup' | 'quiz' | 'results' | 'teaching' | 'playDetail' | 'ask' | 'coachNotes'
   const [screen, setScreen] = useState('home')
   const [questions, setQuestions] = useState([])
   const [config, setConfig] = useState(null) // { mode, formation, count }
@@ -129,6 +130,10 @@ export default function App() {
         onAskCoach={askAboutPlay}
       />
     )
+  }
+
+  if (screen === 'coachNotes') {
+    return <CoachNotesScreen onBack={goHome} />
   }
 
   if (screen === 'ask') {

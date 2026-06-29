@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { familyClasses } from '../lib/formations'
+import SaveCoachNote from './SaveCoachNote'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -128,6 +129,16 @@ export default function QuizScreen({ questions, onComplete, onQuit }) {
           </p>
           <p className="mt-1 text-sm text-slate-200">{q.explanation}</p>
         </div>
+      )}
+
+      {/* Missed it? Save a question for the real coach. */}
+      {answered && selected !== q.correct && (
+        <SaveCoachNote
+          key={q.id}
+          playName={q.play.name}
+          source="quiz"
+          label="📝 Still not clear? Save a note to ask your Coach"
+        />
       )}
 
       <div className="mt-auto pt-5">

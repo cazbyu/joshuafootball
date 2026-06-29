@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { askCoach } from '../lib/askCoach'
+import SaveCoachNote from './SaveCoachNote'
 
 const GENERAL_STARTERS = [
   'When should I use a shallow cross?',
@@ -56,6 +57,8 @@ export default function AskCoachScreen({ playContext = null, onBack }) {
 
   const empty = messages.length === 0
   const starters = playContext ? PLAY_STARTERS : GENERAL_STARTERS
+  // Most recent question the player asked, for "save this for my real coach".
+  const lastQuestion = [...messages].reverse().find((m) => m.role === 'user')?.text ?? null
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col px-4 pb-4 pt-6">
@@ -67,10 +70,11 @@ export default function AskCoachScreen({ playContext = null, onBack }) {
           ← {playContext ? 'Back to play' : 'Home'}
         </button>
         <h1 className="text-2xl font-extrabold tracking-tight">
-          Ask the Coach <span aria-hidden>💬</span>
+          AI Coach <span aria-hidden>🤖</span>
         </h1>
         <p className="mt-1 text-sm text-slate-400">
-          Ask anything about football strategy or your playbook.
+          Ask the AI anything. When you&apos;re unsure, confirm with your real
+          coach.
         </p>
       </header>
 
@@ -112,7 +116,7 @@ export default function AskCoachScreen({ playContext = null, onBack }) {
         {loading && (
           <div className="flex justify-start">
             <div className="rounded-2xl rounded-bl-sm border border-slate-700 bg-surface px-4 py-3">
-              <span className="flex gap-1" aria-label="Coach is thinking">
+              <span className="flex gap-1" aria-label="AI Coach is thinking">
                 <Dot delay="0ms" />
                 <Dot delay="150ms" />
                 <Dot delay="300ms" />
@@ -123,12 +127,25 @@ export default function AskCoachScreen({ playContext = null, onBack }) {
         <div ref={scrollRef} />
       </div>
 
+      {/* Save the current question for the real (human) coach. */}
+      {lastQuestion && (
+        <SaveCoachNote
+          key={lastQuestion}
+          source="ai_coach"
+          playName={playContext}
+          initialText={lastQuestion}
+          label="📝 Save this for my real coach"
+        />
+      )}
+
       {/* Composer */}
       <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={playContext ? `Ask about ${playContext}…` : 'Ask the coach…'}
+          placeholder={
+            playContext ? `Ask about ${playContext}…` : 'Ask the AI Coach…'
+          }
           disabled={loading}
           className="flex-1 rounded-xl border border-slate-700 bg-surface p-3 text-sm placeholder:text-slate-500 focus:border-gold focus:outline-none disabled:opacity-60"
         />

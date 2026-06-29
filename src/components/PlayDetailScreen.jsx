@@ -1,6 +1,7 @@
 import { familyClasses } from '../lib/formations'
 import Collapsible from './Collapsible'
 import FlagPlay from './FlagPlay'
+import SaveCoachNote from './SaveCoachNote'
 
 // One play, shown as a digital playbook page. The diagram and description stay
 // open; the rest collapse so the player can focus on one thing at a time.
@@ -127,15 +128,22 @@ export default function PlayDetailScreen({ play, onBack, onAskCoach }) {
         </section>
       )}
 
-      {/* Jump straight into the bot with this play pre-loaded as context. */}
+      {/* Jump straight into the AI Coach with this play pre-loaded as context. */}
       {onAskCoach && (
         <button
           onClick={() => onAskCoach(play)}
           className="mt-8 w-full rounded-xl bg-gold py-4 text-base font-bold text-navy shadow-lg transition active:scale-[0.99]"
         >
-          💬 Ask the Coach about this play
+          🤖 Ask the AI Coach about this play
         </button>
       )}
+
+      {/* Save a real question for the human coach. */}
+      <SaveCoachNote
+        playName={play.name}
+        source="teaching"
+        label="📝 Still not clear? Save a note to ask your Coach"
+      />
 
       {/* Low-key feedback: flag the play for coach review. */}
       <FlagPlay playName={play.name} />

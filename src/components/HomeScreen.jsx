@@ -14,9 +14,9 @@ const MODES = [
   },
   {
     id: 'ask',
-    emoji: '💬',
-    label: 'Ask the Coach',
-    blurb: 'AI strategy bot — ask anything football',
+    emoji: '🤖',
+    label: 'AI Coach',
+    blurb: 'Ask the AI anything — confirm with your real coach',
   },
 ]
 
@@ -74,6 +74,14 @@ export default function HomeScreen({ plays, loading, error, onPick }) {
           )
         })}
       </div>
+
+      {/* Joshua's running list of questions for his human coach. */}
+      <button
+        onClick={() => onPick('coachNotes')}
+        className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-surface/50 py-3 text-sm font-medium text-slate-300 transition hover:border-gold hover:text-slate-100"
+      >
+        📋 My Coach Notes
+      </button>
     </div>
   )
 }
