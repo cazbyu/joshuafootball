@@ -3,17 +3,23 @@ import { usePlays } from './hooks/usePlays'
 import { supabase } from './lib/supabase'
 import { generateQuiz } from './lib/quiz'
 import HomeScreen from './components/HomeScreen'
+import QuizSetupScreen from './components/QuizSetupScreen'
 import QuizScreen from './components/QuizScreen'
 import ResultsScreen from './components/ResultsScreen'
+import TeachingScreen from './components/TeachingScreen'
+import PlayDetailScreen from './components/PlayDetailScreen'
+import AskCoachScreen from './components/AskCoachScreen'
 
 export default function App() {
   const { plays, loading, error } = usePlays()
 
-  const [screen, setScreen] = useState('home') // 'home' | 'quiz' | 'results'
+  // 'home' | 'quizSetup' | 'quiz' | 'results' | 'teaching' | 'playDetail' | 'ask'
+  const [screen, setScreen] = useState('home')
   const [questions, setQuestions] = useState([])
   const [config, setConfig] = useState(null) // { mode, formation, count }
   const [result, setResult] = useState(null)
   const [saveState, setSaveState] = useState('idle') // idle | saving | saved | error
+  const [selectedPlay, setSelectedPlay] = useState(null)
 
   function startQuiz({ mode, formation, count }) {
     const pool =
@@ -54,6 +60,24 @@ export default function App() {
     setScreen('home')
     setQuestions([])
     setResult(null)
+    setSelectedPlay(null)
+  }
+
+  function openPlay(play) {
+    setSelectedPlay(play)
+    setScreen('playDetail')
+  }
+
+  if (screen === 'quizSetup') {
+    return (
+      <QuizSetupScreen
+        plays={plays}
+        loading={loading}
+        error={error}
+        onStart={startQuiz}
+        onBack={goHome}
+      />
+    )
   }
 
   if (screen === 'quiz') {
@@ -67,9 +91,38 @@ export default function App() {
   }
 
   if (screen === 'results' && result) {
+    // "Quiz again" returns to setup so they can pick a new mode/formation.
     return (
-      <ResultsScreen result={result} saveState={saveState} onAgain={goHome} />
+      <ResultsScreen
+        result={result}
+        saveState={saveState}
+        onAgain={() => setScreen('quizSetup')}
+      />
     )
+  }
+
+  if (screen === 'teaching') {
+    return (
+      <TeachingScreen
+        plays={plays}
+        loading={loading}
+        onOpen={openPlay}
+        onBack={goHome}
+      />
+    )
+  }
+
+  if (screen === 'playDetail' && selectedPlay) {
+    return (
+      <PlayDetailScreen
+        play={selectedPlay}
+        onBack={() => setScreen('teaching')}
+      />
+    )
+  }
+
+  if (screen === 'ask') {
+    return <AskCoachScreen onBack={goHome} />
   }
 
   return (
@@ -77,7 +130,9 @@ export default function App() {
       plays={plays}
       loading={loading}
       error={error}
-      onStart={startQuiz}
+      onPick={(mode) =>
+        setScreen(mode === 'quiz' ? 'quizSetup' : mode)
+      }
     />
   )
 }

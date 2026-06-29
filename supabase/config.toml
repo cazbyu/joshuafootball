@@ -1,0 +1,9 @@
+# Minimal config so `supabase functions deploy --project-ref wyipyiahvjcvnwoxwttd`
+# (and the Supabase CLI generally) can find the project. The Edge Function
+# secrets (ANTHROPIC_API_KEY, etc.) live in the Supabase dashboard, not here.
+project_id = "wyipyiahvjcvnwoxwttd"
+
+# The frontend calls this with the anon key as a Bearer token, which is a
+# valid JWT, so keep JWT verification on (blocks anonymous, key-less callers).
+[functions.ask-coach]
+verify_jwt = true
