@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { FORMATIONS, formationFamily, familyClasses } from '../lib/formations'
 import Formations101 from './Formations101'
+import Collapsible from './Collapsible'
 
 // Browse the whole playbook. Search by name/concept/tags, filter by formation,
 // grouped and color-coded by family (GOLD = blue, RED = orange, TITE = green).
@@ -92,48 +93,59 @@ export default function TeachingScreen({ plays, loading, onOpen, onBack }) {
         </p>
       )}
 
-      {groups.map(({ family, plays: famPlays }) => (
-        <section key={family} className="mb-6">
-          <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-            <span
-              className={[
-                'h-2.5 w-2.5 rounded-full border',
-                familyClasses(family),
-              ].join(' ')}
-            />
-            {family} · {famPlays.length}
-          </h2>
-          <div className="flex flex-col gap-2">
-            {famPlays.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => onOpen(p)}
-                className="flex items-center gap-3 rounded-xl border border-slate-700 bg-surface p-3.5 text-left transition hover:border-gold active:scale-[0.99]"
-              >
-                <span className="flex-1">
-                  <span className="block font-semibold">{p.name}</span>
-                  {p.concept && (
-                    <span className="block text-xs text-slate-400">
-                      {p.concept}
-                    </span>
-                  )}
-                </span>
+      {/* Formation groups — each header collapses/expands its plays. */}
+      <div className="flex flex-col gap-3">
+        {groups.map(({ family, plays: famPlays }) => (
+          <Collapsible
+            key={family}
+            defaultOpen
+            className={familyClasses(family)}
+            header={
+              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide">
                 <span
                   className={[
-                    'shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold',
-                    familyClasses(p.formation),
+                    'h-2.5 w-2.5 rounded-full border',
+                    familyClasses(family),
                   ].join(' ')}
+                />
+                {family} · {famPlays.length}
+              </span>
+            }
+          >
+            <div className="flex flex-col gap-2">
+              {famPlays.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onOpen(p)}
+                  className="flex items-center gap-3 rounded-xl border border-slate-700 bg-surface p-3.5 text-left transition hover:border-gold active:scale-[0.99]"
                 >
-                  {p.formation}
-                </span>
-                <span className="text-xl text-slate-500" aria-hidden>
-                  ›
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      ))}
+                  <span className="flex-1">
+                    <span className="block font-semibold text-slate-100">
+                      {p.name}
+                    </span>
+                    {p.concept && (
+                      <span className="block text-xs text-slate-400">
+                        {p.concept}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={[
+                      'shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold',
+                      familyClasses(p.formation),
+                    ].join(' ')}
+                  >
+                    {p.formation}
+                  </span>
+                  <span className="text-xl text-slate-500" aria-hidden>
+                    ›
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Collapsible>
+        ))}
+      </div>
     </div>
   )
 }
